@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import Select from 'react-select'
 import RescanButton from './RescanButton/RescanButton'
+import ModelSelect from './ModelSelect/ModelSelect'
 
 type ModelListProps = {
   setSelectedModel: React.Dispatch<React.SetStateAction<Model>>
@@ -44,57 +44,21 @@ export default function ModelList({
     }
   }, [])
 
-  const colorStyles = {
-    control: (styles: Record<string, unknown>) => ({
-      ...styles,
-      backgroundColor: 'white',
-      fontSize: '0.875rem;',
-    }),
-    option: (
-      styles: Record<string, unknown>,
-      { isFocused, isSelected }: { isFocused: boolean; isSelected: boolean },
-    ) => {
-      return {
-        ...styles,
-        fontSize: '0.875rem;',
+  const LoadingContent = <p className="text-white">Loading...</p>
 
-        backgroundColor: isSelected
-          ? '#818cf8'
-          : isFocused
-          ? '#eef2ff'
-          : 'white',
-      }
-    },
-  }
-
-  const modelOptions = modelList.map(model => ({
-    value: model,
-    label: model.name,
-  }))
+  const NormalContent =
+    modelList.length === 0 ? (
+      <div className="flex flex-col items-start text-white">
+        <p className="">No models found</p>
+        <RescanButton setLoading={setLoading} getModelInfo={getModelInfo} />
+      </div>
+    ) : (
+      <ModelSelect modelList={modelList} setSelectedModel={setSelectedModel} />
+    )
 
   return (
     <section className="w-1/2 mx-auto my-auto ">
-      {loading ? (
-        <p className="text-white">Loading...</p>
-      ) : modelList.length === 0 ? (
-        <div className="flex flex-col items-start text-white">
-          <p className="">No models found</p>
-          <RescanButton setLoading={setLoading} getModelInfo={getModelInfo} />
-        </div>
-      ) : (
-        <div>
-          <h1 className="text-white">Model List</h1>
-          <Select
-            options={modelOptions}
-            styles={colorStyles}
-            onChange={selectedOption => {
-              if (selectedOption !== null) {
-                setSelectedModel(selectedOption.value as Model)
-              }
-            }}
-          />
-        </div>
-      )}
+      {loading ? LoadingContent : NormalContent}
     </section>
   )
 }
