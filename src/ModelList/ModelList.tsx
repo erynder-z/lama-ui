@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import Select from 'react-select'
+import RescanButton from './RescanButton/RescanButton'
 
 type ModelListProps = {
   setSelectedModel: React.Dispatch<React.SetStateAction<Model>>
@@ -72,11 +73,14 @@ export default function ModelList({
   }))
 
   return (
-    <section className="w-1/2 mx-auto my-auto">
+    <section className="w-1/2 mx-auto my-auto ">
       {loading ? (
-        <p>Loading...</p>
+        <p className="text-white">Loading...</p>
       ) : modelList.length === 0 ? (
-        <p>No models found</p>
+        <div className="flex flex-col items-start text-white">
+          <p className="">No models found</p>
+          <RescanButton setLoading={setLoading} getModelInfo={getModelInfo} />
+        </div>
       ) : (
         <div>
           <h1 className="text-white">Model List</h1>
