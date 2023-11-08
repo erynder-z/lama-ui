@@ -31,10 +31,13 @@ type ModelResponse = {
 export default function Chat({ selectedModel }: ChatProps) {
   const [inputText, setInputText] = useState<string>('')
   const [outputText, setOutputText] = useState<string>('')
+  const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
 
   const submitPrompt = async () => {
-    if (selectedModel) {
+    const isModelSelected = selectedModel.size
+
+    if (isModelSelected) {
       setIsSubmitting(true)
       try {
         const apiEndpoint = 'http://localhost:11434/api/generate'
@@ -55,19 +58,28 @@ export default function Chat({ selectedModel }: ChatProps) {
         const modelResponse: ModelResponse = await response.json()
         setOutputText(modelResponse.response)
       } catch (error) {
-        console.log(error)
+        setError('Something went wrong!')
+        setTimeout(() => {
+          setError(null)
+        }, 3000) //
       } finally {
         setIsSubmitting(false)
         setInputText('')
       }
+    } else {
+      setError('Please select a model!')
+      setTimeout(() => {
+        setError(null)
+      }, 3000) //
     }
   }
 
   return (
     <div className="w-full col-start-2 row-start-1 row-span-3 grid grid-cols-1 grid-rows-3 md:my-40 p-4 leading-7 text-lg bg-stone-300">
-      <div className="row-span-2">
+      <div className="row-span-2 w-full">
         <header className="text-3xl font-bold">{selectedModel.name}</header>
         <OutputField />
+        {error && <p className="font-bold text-red-500">{error}</p>}
       </div>
       <div className="row-span-1 mt-auto">
         <InputField

@@ -38,7 +38,7 @@ export default function InputField({
 
   return (
     <>
-      <div className="relative z-0 flex bg-slate-200 border-l-4 border-indigo-400 text-slate-900">
+      <div className="relative z-0 flex flex-col bg-slate-200 border-l-4 border-indigo-400 text-slate-900 ">
         <textarea
           ref={textareaRef}
           rows={textareaRows}
@@ -51,7 +51,7 @@ export default function InputField({
             isSubmitting
               ? 'bg-gray-400 text-gray-600'
               : 'bg-transparent text-slate-900'
-          } block p-2 w-full max-h-40 overflow-y-auto text-sm border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 peer overflow-hidden resize-none`}
+          } block p-2 w-full max-h-44 overflow-y-auto text-sm border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 peer overflow-hidden resize-none`}
           placeholder=" "
           value={inputText}
           onChange={handleTextareaChange}
@@ -59,7 +59,7 @@ export default function InputField({
         <button
           onClick={submitPrompt}
           disabled={isSubmitting}
-          className="w-20 p-4 flex justify-center items-center bg-indigo-400 hover:bg-indigo-500"
+          className="w-full h-14 p-4 flex justify-center items-center bg-indigo-400 hover:bg-indigo-500"
         >
           {isSubmitting ? (
             <TbSendOff size="1.75em" />
