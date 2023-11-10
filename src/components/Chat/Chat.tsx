@@ -1,4 +1,5 @@
-import { useState } from 'react'
+/* eslint no-constant-condition: ["error", { "checkLoops": false }] */
+import { useEffect, useState } from 'react'
 import InputField from './InputField/InputField'
 import OutputField from './OutputField/OutputField'
 
@@ -12,38 +13,24 @@ type Model = {
   size: number
 }
 
-type ModelResponse = {
-  model: string
-  created_at: string
-  response: string
-  context: number[]
-  done: boolean
-  total_duration: number
-  load_duration: number
-  sample_count: number
-  sample_duration: number
-  prompt_eval_count: number
-  prompt_eval_duration: number
-  eval_count: number
-  eval_duration: number
-}
-
 export default function Chat({ selectedModel }: ChatProps) {
   const [inputText, setInputText] = useState<string>('')
-  const [outputText, setOutputText] = useState<string>('')
+  const [modelResponse, setModelResponse] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [isGeneratingReponse, setIsGeneratingResponse] =
+    useState<boolean>(false)
 
   const submitPrompt = async () => {
     const isModelSelected = selectedModel.size
 
     if (isModelSelected) {
       setIsSubmitting(true)
+      setIsGeneratingResponse(true)
       try {
         const apiEndpoint = 'http://localhost:11434/api/generate'
         const modelName = selectedModel.name
         const userPrompt = inputText
-        const shouldReturnStream = false
 
         const response = await fetch(apiEndpoint, {
           method: 'POST',
@@ -51,17 +38,36 @@ export default function Chat({ selectedModel }: ChatProps) {
           body: JSON.stringify({
             model: modelName,
             prompt: userPrompt,
-            stream: shouldReturnStream,
           }),
         })
 
-        const modelResponse: ModelResponse = await response.json()
-        setOutputText(modelResponse.response)
+        if (response.body) {
+          const reader = response.body.getReader()
+          const decoder = new TextDecoder()
+
+          const processStream = async () => {
+            while (true) {
+              const { done, value } = await reader.read()
+              if (done) {
+                setIsGeneratingResponse(false)
+                break
+              }
+
+              const chunk = decoder.decode(value)
+              const parsedChunk = JSON.parse(chunk)
+              const { response } = parsedChunk
+
+              setModelResponse(prevResponse => prevResponse + response)
+            }
+          }
+
+          processStream()
+        }
       } catch (error) {
         setError('Something went wrong!')
         setTimeout(() => {
           setError(null)
-        }, 3000) //
+        }, 3000)
       } finally {
         setIsSubmitting(false)
         setInputText('')
@@ -70,7 +76,7 @@ export default function Chat({ selectedModel }: ChatProps) {
       setError('Please select a model!')
       setTimeout(() => {
         setError(null)
-      }, 3000) //
+      }, 3000)
     }
   }
 
