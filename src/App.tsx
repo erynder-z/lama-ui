@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import ModelList from './ModelList/ModelList'
+import ModelList from './components/ModelList/ModelList'
 import Chat from './components/Chat/Chat'
 
 type Model = {
